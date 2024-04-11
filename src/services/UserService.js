@@ -1,7 +1,7 @@
 const connection = require("../models/db")
 
 exports.getUserByEmail = async (email) => {
-    const [user] = await connection.execute("SELECT * users WHERE email = ? LIMIT 1", [email])
+    const [user] = await connection.execute("SELECT * FROM users WHERE email = ? LIMIT 1", [email])
     return user;
 }
 
