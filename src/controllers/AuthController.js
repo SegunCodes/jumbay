@@ -2,9 +2,11 @@ const bcryptjs = require("bcryptjs");
 const {
   getUserByEmail,
   saveUser,
-  getUserByPassword,
+  verifyUserAccount
 } = require("../services/UserService");
 const randomize = require("randomatic");
+const jwt = require("jsonwebtoken");
+const { sendEmail,sendEmailWithTemplate  } = require("../services/EmailService");
 //method for creating a user
 exports.registerUser = async (req, res) => {
   try {
@@ -15,7 +17,7 @@ exports.registerUser = async (req, res) => {
       // if user exists, return an error
       return res.status(400).json({
         status: false,
-        data: [],
+        data: {},
         message: "User already exists",
       });
     }
@@ -33,14 +35,25 @@ exports.registerUser = async (req, res) => {
     if (!user) {
       return res.status(400).json({
         status: false,
-        data: [],
+        data: {},
         message: "Something went wrong",
       });
     }
 
+    const verification_link = `http://localhost:4000/auth/verify/${verification_token}/${email}`
+    const data = {
+      verification_link: verification_link,
+      subject: "Email Verification",
+      text: `Click on this link to verify your email : ${verification_link}`,
+      html: `<p>Click on this link to verify your email: <a href="${verification_link}"> Click Here </a></p> `
+    }
+
+    await sendEmailWithTemplate(email, data)
+
+
     return res.status(200).json({
       status: true,
-      data: [],
+      data: {},
       message: "Successful",
     });
     //send email to user
@@ -58,7 +71,7 @@ exports.loginUser = async (req, res) => {
       // if user does not exists, return an error
       return res.status(400).json({
         status: false,
-        data: [],
+        data: {},
         message: "User does not exist",
       });
     }
@@ -72,19 +85,88 @@ exports.loginUser = async (req, res) => {
       hashedPasswordFromDB
     );
 
-    if (passwordMatch) {
-      return res.status(200).json({
-        status: true,
-        data: [],
-        message: "Correct Password and email",
-      });
-    } else {
+    if (!passwordMatch) {
       return res.status(400).json({
         status: false,
-        data: [],
-        message: "Incorrect Password",
+        data: {},
+        message: "Invalid email or password",
+      });
+    } 
+
+    // if password match, check if the user is verified
+    if (!user.is_verified) {
+      return res.status(400).json({
+        status: false,
+        data: {},
+        message: "user is not verified",
+      });
+    } 
+    
+    //generate a token
+    const token = jwt.sign({email}, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_LIFETIME
+    })
+
+    const userData = {
+      id: user.id,
+      email: user.email,
+      verification_token: user.verification_token,
+      is_verified: user.is_verified
+    }
+
+    return res.status(200).json({
+      status: true,
+      data: {
+        userData
+      },
+      message: "Successful",
+      token
+    });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+exports.verifyEmail = async (req, res) => {
+  try {
+    const { verification_token, email,  } = req.params;
+    // check if user exists in our database
+    const emailExist = await getUserByEmail(email);
+    if (emailExist.length === 0) {
+      // if user does not exists, return an error
+      return res.status(400).json({
+        status: false,
+        data: {},
+        message: "User does not exist",
       });
     }
+
+    const user = emailExist[0]; 
+    const verificationTokenFromDB = user.verification_token;
+
+    if (verificationTokenFromDB != verification_token) {
+      return res.status(400).json({
+        status: false,
+        data: {},
+        message: "Invalid email or token",
+      });
+    } 
+
+    const update_user = await verifyUserAccount(user.id)
+
+    if (!update_user) {
+      return res.status(400).json({
+        status: false,
+        data: {},
+        message: "unexpected error",
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      data: {},
+      message: "Successful"
+    });
   } catch (error) {
     console.error(error);
   }

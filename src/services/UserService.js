@@ -16,10 +16,11 @@ exports.saveUser = async (email, usertype, password, verification_token) => {
   return result;
 };
 
-exports.getUserByPassword = async (password) => {
-  const [passwordResult] = await connection.execute(
-    "SELECT * FROM users WHERE password = ? LIMIT 1",
-    [password]
-  );
-  return passwordResult;
-};
+exports.verifyUserAccount = async (user_id) => {
+    const [result] = await connection.execute(
+      "UPDATE users SET is_verified = true, verification_token = NULL WHERE id = ?",
+      [user_id]
+    );
+    return result;
+  };
+  

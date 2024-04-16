@@ -14,10 +14,15 @@ authRoutes.post(
   AuthController.registerUser
 );
 
-authRoutes.get(
+authRoutes.post(
   "/loginUser",
   validator.validateSchema(loginValidation),
   AuthController.loginUser
+);
+
+authRoutes.put(
+  "/verify/:verification_token/:email",
+  AuthController.verifyEmail
 );
 
 module.exports = authRoutes;
