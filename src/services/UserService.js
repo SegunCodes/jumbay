@@ -15,11 +15,3 @@ exports.saveUser = async (email, usertype, password, verification_token) => {
   );
   return result;
 };
-
-exports.getUserByPassword = async (password) => {
-  const [passwordResult] = await connection.execute(
-    "SELECT * FROM users WHERE password = ? LIMIT 1",
-    [password]
-  );
-  return passwordResult;
-};
