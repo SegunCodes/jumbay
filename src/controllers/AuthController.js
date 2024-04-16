@@ -4,7 +4,8 @@ const {
   saveUser
 } = require("../services/UserService");
 const randomize = require("randomatic");
-const jwt = require("jsonwebtoken")
+const jwt = require("jsonwebtoken");
+const { sendEmail } = require("../services/EmailService");
 //method for creating a user
 exports.registerUser = async (req, res) => {
   try {
@@ -37,6 +38,17 @@ exports.registerUser = async (req, res) => {
         message: "Something went wrong",
       });
     }
+
+    const verification_link = `http://localhost:4000/auth/verify/${verification_token}/${email}`
+    const data = {
+      verification_link: verification_link,
+      subject: "Email Verification",
+      text: `Click on this link to verify your email : ${verification_link}`,
+      html: `<p>Click on this link to verify your email: <a href="${verification_link}"> Click Here </a></p> `
+    }
+
+    await sendEmail(email, data)
+
 
     return res.status(200).json({
       status: true,
