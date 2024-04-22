@@ -2,11 +2,14 @@ const bcryptjs = require("bcryptjs");
 const {
   getUserByEmail,
   saveUser,
-  verifyUserAccount
+  verifyUserAccount,
 } = require("../services/UserService");
 const randomize = require("randomatic");
 const jwt = require("jsonwebtoken");
-const { sendEmail,sendEmailWithTemplate  } = require("../services/EmailService");
+const {
+  sendEmail,
+  sendEmailWithTemplate,
+} = require("../services/EmailService");
 //method for creating a user
 exports.registerUser = async (req, res) => {
   try {
@@ -40,16 +43,15 @@ exports.registerUser = async (req, res) => {
       });
     }
 
-    const verification_link = `http://localhost:4000/auth/verify/${verification_token}/${email}`
+    const verification_link = `http://localhost:4000/auth/verify/${verification_token}/${email}`;
     const data = {
       verification_link: verification_link,
       subject: "Email Verification",
       text: `Click on this link to verify your email : ${verification_link}`,
-      html: `<p>Click on this link to verify your email: <a href="${verification_link}"> Click Here </a></p> `
-    }
+      html: `<p>Click on this link to verify your email: <a href="${verification_link}"> Click Here </a></p> `,
+    };
 
-    await sendEmailWithTemplate(email, data)
-
+    await sendEmailWithTemplate(email, data);
 
     return res.status(200).json({
       status: true,
@@ -91,7 +93,7 @@ exports.loginUser = async (req, res) => {
         data: {},
         message: "Invalid email or password",
       });
-    } 
+    }
 
     // if password match, check if the user is verified
     if (!user.is_verified) {
@@ -100,27 +102,27 @@ exports.loginUser = async (req, res) => {
         data: {},
         message: "user is not verified",
       });
-    } 
-    
+    }
+
     //generate a token
-    const token = jwt.sign({email}, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_LIFETIME
-    })
+    const token = jwt.sign({ email }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_LIFETIME,
+    });
 
     const userData = {
       id: user.id,
       email: user.email,
       verification_token: user.verification_token,
-      is_verified: user.is_verified
-    }
+      is_verified: user.is_verified,
+    };
 
     return res.status(200).json({
       status: true,
       data: {
-        userData
+        userData,
       },
       message: "Successful",
-      token
+      token,
     });
   } catch (error) {
     console.error(error);
@@ -129,7 +131,7 @@ exports.loginUser = async (req, res) => {
 
 exports.verifyEmail = async (req, res) => {
   try {
-    const { verification_token, email,  } = req.params;
+    const { verification_token, email } = req.params;
     // check if user exists in our database
     const emailExist = await getUserByEmail(email);
     if (emailExist.length === 0) {
@@ -141,7 +143,7 @@ exports.verifyEmail = async (req, res) => {
       });
     }
 
-    const user = emailExist[0]; 
+    const user = emailExist[0];
     const verificationTokenFromDB = user.verification_token;
 
     if (verificationTokenFromDB != verification_token) {
@@ -150,9 +152,9 @@ exports.verifyEmail = async (req, res) => {
         data: {},
         message: "Invalid email or token",
       });
-    } 
+    }
 
-    const update_user = await verifyUserAccount(user.id)
+    const update_user = await verifyUserAccount(user.id);
 
     if (!update_user) {
       return res.status(400).json({
@@ -165,12 +167,11 @@ exports.verifyEmail = async (req, res) => {
     return res.status(200).json({
       status: true,
       data: {},
-      message: "Successful"
+      message: "Successful",
     });
   } catch (error) {
     console.error(error);
   }
 };
 
-
-//message
+//mes
