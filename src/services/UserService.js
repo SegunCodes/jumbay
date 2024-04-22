@@ -22,5 +22,51 @@ exports.verifyUserAccount = async (user_id) => {
       [user_id]
     );
     return result;
-  };
+};
   
+exports.saveProduct = async (name, quantity, price, category_id, user_id) => {
+    const [result] = await connection.execute(
+      "INSERT INTO products (name, quantity, price, category_id, user_id) VALUES (?,?,?,?,?)",
+      [name, quantity, price, category_id, user_id]
+    );
+    return result;
+};
+  
+exports.getSellerProducts = async (id) => {
+  const [result] = await connection.execute(
+    "SELECT * FROM products WHERE user_id = ? ORDER BY id DESC",
+    [id]
+  );
+  return result;
+};
+
+exports.getAllProducts = async () => {
+  const [result] = await connection.execute(
+    "SELECT * FROM products ORDER BY id DESC"
+  );
+  return result;
+};
+
+exports.getCategoryProducts = async (category_id) => {
+  const [result] = await connection.execute(
+    "SELECT * FROM products WHERE category_id = ? ORDER BY RAND()",
+    [category_id]
+  );
+  return result;
+};
+
+exports.getProduct = async (product_id) => {
+  const [result] = await connection.execute(
+    "SELECT * FROM products WHERE id = ?",
+    [product_id]
+  );
+  return result;
+};
+
+exports.getSellerProduct = async (product_id, user_id) => {
+  const [result] = await connection.execute(
+    "SELECT * FROM products WHERE id = ? AND user_id = ?",
+    [product_id, user_id]
+  );
+  return result;
+};
