@@ -17,21 +17,21 @@ exports.saveUser = async (email, usertype, password, verification_token) => {
 };
 
 exports.verifyUserAccount = async (user_id) => {
-    const [result] = await connection.execute(
-      "UPDATE users SET is_verified = true, verification_token = NULL WHERE id = ?",
-      [user_id]
-    );
-    return result;
+  const [result] = await connection.execute(
+    "UPDATE users SET is_verified = true, verification_token = NULL WHERE id = ?",
+    [user_id]
+  );
+  return result;
 };
-  
+
 exports.saveProduct = async (name, quantity, price, category_id, user_id) => {
-    const [result] = await connection.execute(
-      "INSERT INTO products (name, quantity, price, category_id, user_id) VALUES (?,?,?,?,?)",
-      [name, quantity, price, category_id, user_id]
-    );
-    return result;
+  const [result] = await connection.execute(
+    "INSERT INTO products (name, quantity, price, category_id, user_id) VALUES (?,?,?,?,?)",
+    [name, quantity, price, category_id, user_id]
+  );
+  return result;
 };
-  
+
 exports.getSellerProducts = async (id) => {
   const [result] = await connection.execute(
     "SELECT * FROM products WHERE user_id = ? ORDER BY id DESC",
@@ -66,6 +66,14 @@ exports.getProduct = async (product_id) => {
 exports.getSellerProduct = async (product_id, user_id) => {
   const [result] = await connection.execute(
     "SELECT * FROM products WHERE id = ? AND user_id = ?",
+    [product_id, user_id]
+  );
+  return result;
+};
+
+exports.deleteSellerProduct = async (product_id, user_id) => {
+  const [result] = await connection.execute(
+    "DELETE FROM products WHERE id = ? AND user_id = ?",
     [product_id, user_id]
   );
   return result;
