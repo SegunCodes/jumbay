@@ -78,3 +78,10 @@ exports.deleteSellerProduct = async (product_id, user_id) => {
   );
   return result;
 };
+exports.updateSellerProduct = async (product_id, user_id) => {
+  const [result] = await connection.execute(
+    "UPDATE products SET quantity = ? price = ? WHERE user_id = ? AND id = ?",
+    [quantity, price, user_id, product_id]
+  );
+  return result;
+};
