@@ -35,6 +35,12 @@ userRoutes.put(
   UserController.updateMyProducts
 );
 
+userRoutes.put(
+  "/myProduct/addtocart",
+  authenticationMiddleware.verifyToken,
+  UserController.addToCart
+);
+
 userRoutes.get("/products", UserController.viewAllProducts);
 
 userRoutes.get(

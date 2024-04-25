@@ -7,6 +7,7 @@ const {
   getSellerProduct,
   deleteSellerProduct,
   updateSellerProduct,
+  addToCart,
 } = require("../services/UserService");
 
 // for sellers to add products
@@ -21,6 +22,7 @@ exports.addProducts = async (req, res) => {
       price,
       category_id,
       req.user.id
+      // user_id
     );
     if (!product) {
       return res.status(400).json({
@@ -406,3 +408,33 @@ exports.viewProduct = async (req, res) => {
     console.error(error);
   }
 };
+exports.addToCart = async (req, res) => {
+  try {
+    const { user_id, productName, productId, quantity, price } = req.body;
+
+    const product = await addToCart(
+      user_id,
+      productName,
+      productId,
+      quantity,
+      price
+    );
+
+    if (!product) {
+      return res.status(400).json({
+        status: false,
+        data: {},
+        message: "Something went wrong",
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      data: product,
+      message: "Successful",
+    });
+  } catch (error) {
+    console.error(error);
+  }
+};
+//bojak 18.22

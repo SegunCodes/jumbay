@@ -10,30 +10,77 @@ exports.getUserByEmail = async (email) => {
 
 exports.saveUser = async (email, usertype, password, verification_token) => {
   try {
+    // Insert user information into the users table
     const [result] = await connection.execute(
-      "INSERT INTO users (email, usertype, password, verification_token) VALUES (?,?,?,?)",
+      "INSERT INTO users (email, usertype, password, verification_token) VALUES (?, ?, ?, ?)",
       [email, usertype, password, verification_token]
     );
 
-    const userId = user.id;
+    // Get the auto-generated user ID
+    const userId = result.insertId;
 
+    // Dynamically create a cart table for the user
     const cartName = `cart_${userId}`;
-
-    const [cart] = await connection.execute(
-      `CREATE TABLE ${taskTableName} (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        Productname VARCHAR(255),
-        ProductId VARCHAR(255),
-        Quantity VARCHAR(255),
-        Price VARCHAR(255)
-        ...
+    console.log(cartName);
+    await connection.execute(
+      `CREATE TABLE ${cartName} (
+        id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        productName VARCHAR(255),
+        productId VARCHAR(255),
+        quantity VARCHAR(255),
+        price VARCHAR(255)
       )`
     );
 
-    return result;
+    // // Create the user_carts table if it doesn't exist
+    // await connection.execute(`
+    //   CREATE TABLE IF NOT EXISTS user_carts (
+    //     user_id INT NOT NULL,
+    //     cartName VARCHAR(255) NOT NULL,
+    //     PRIMARY KEY (user_id,cartName),
+    //     FOREIGN KEY (user_id) REFERENCES users(id),
+    //     FOREIGN KEY (cartName) REFERENCES ${cartName}
+    //   );
+    // `);
+
+    // Insert user-cart mapping into user_carts table
+    // await connection.execute(
+    //   "INSERT INTO user_carts (user_id, cartName) VALUES (?, ?)",
+    //   [userId, cartName]
+    // );
+
+    return result; // Return the result of the user insertion
   } catch (error) {
-    console.error(error);
+    throw error;
   }
+};
+
+// getCartName = async (user_id) => {
+//   const [result] = await connection.execute(
+//     "SELECT cartName FROM user_carts WHERE user_id = ?",
+//     [user_id]
+//   );
+//   return result;
+// };
+
+exports.addToCart = async (
+  user_id,
+  productName,
+  productId,
+  quantity,
+  price
+) => {
+  const cartTable = `cart_${user_id}`;
+  console.log(cartTable);
+  const [result] = await connection.execute(
+    `INSERT INTO ${cartTable} (productName, productId, quantity, price) VALUES (?, ?, ?, ?)`,
+    [productName, productId, quantity, price],
+    (productId = productId !== undefined ? productId : null),
+    (quantity = quantity !== undefined ? quantity : null),
+    (price = price !== undefined ? price : null),
+    console.log(productName, productId, quantity, price)
+  );
+  return result;
 };
 
 exports.verifyUserAccount = async (user_id) => {
