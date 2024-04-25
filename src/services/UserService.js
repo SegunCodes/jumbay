@@ -9,11 +9,31 @@ exports.getUserByEmail = async (email) => {
 };
 
 exports.saveUser = async (email, usertype, password, verification_token) => {
-  const [result] = await connection.execute(
-    "INSERT INTO users (email, usertype, password, verification_token) VALUES (?,?,?,?)",
-    [email, usertype, password, verification_token]
-  );
-  return result;
+  try {
+    const [result] = await connection.execute(
+      "INSERT INTO users (email, usertype, password, verification_token) VALUES (?,?,?,?)",
+      [email, usertype, password, verification_token]
+    );
+
+    const userId = user.id;
+
+    const cartName = `cart_${userId}`;
+
+    const [cart] = await connection.execute(
+      `CREATE TABLE ${taskTableName} (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        Productname VARCHAR(255),
+        ProductId VARCHAR(255),
+        Quantity VARCHAR(255),
+        Price VARCHAR(255)
+        ...
+      )`
+    );
+
+    return result;
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 exports.verifyUserAccount = async (user_id) => {
@@ -73,15 +93,16 @@ exports.getSellerProduct = async (product_id, user_id) => {
 
 exports.deleteSellerProduct = async (product_id, user_id) => {
   const [result] = await connection.execute(
-    "DELETE FROM products WHERE id = ? AND user_id = ?",
+    "DELETE FROM products WHERE  id = ? AND user_id = ?",
     [product_id, user_id]
   );
   return result;
 };
-exports.updateSellerProduct = async (product_id, user_id) => {
+
+exports.updateSellerProduct = async (quantity, price, product_id, user_id) => {
   const [result] = await connection.execute(
-    "UPDATE products SET quantity = ? price = ? WHERE user_id = ? AND id = ?",
-    [quantity, price, user_id, product_id]
+    "UPDATE products SET quantity = ?, price = ? WHERE   id = ? AND user_id = ?",
+    [quantity, price, product_id, user_id]
   );
   return result;
 };

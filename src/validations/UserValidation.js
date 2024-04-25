@@ -5,4 +5,5 @@ exports.AddProductValidation = joi.object({
   quantity: joi.string().required(),
   price: joi.string().required(),
   category_id: joi.number().required(),
+  // user_id: joi.string().required(),
 });

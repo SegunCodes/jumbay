@@ -25,9 +25,14 @@ userRoutes.get(
   UserController.viewMyProduct
 );
 userRoutes.delete(
-  "/myProduct/:product_id",
+  "/myProduct/delete",
   authenticationMiddleware.verifyToken,
   UserController.deleteMyProducts
+);
+userRoutes.put(
+  "/myProduct/update",
+  authenticationMiddleware.verifyToken,
+  UserController.updateMyProducts
 );
 
 userRoutes.get("/products", UserController.viewAllProducts);
