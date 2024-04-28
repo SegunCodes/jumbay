@@ -104,8 +104,12 @@ exports.loginUser = async (req, res) => {
       });
     }
 
+    const payload = {
+      email,
+      id: user.id,
+    };
     //generate a token
-    const token = jwt.sign({ email }, process.env.JWT_SECRET, {
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_LIFETIME,
     });
 
