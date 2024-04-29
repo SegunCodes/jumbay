@@ -25,4 +25,9 @@ authRoutes.put(
   AuthController.verifyEmail
 );
 
+authRoutes.get(
+  "/user",
+  AuthController.getUserFromNodeCache
+);
+
 module.exports = authRoutes;
