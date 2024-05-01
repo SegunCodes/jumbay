@@ -16,52 +16,18 @@ exports.saveUser = async (email, usertype, password, verification_token) => {
       [email, usertype, password, verification_token]
     );
 
-    // Get the auto-generated user ID
-    const userId = result.insertId;
-
-    // Dynamically create a cart table for the user
-    const cartName = `cart_${userId}`;
-    console.log(cartName);
-    await connection.execute(
-      `CREATE TABLE ${cartName} (
-        id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-        productName VARCHAR(255),
-        productId VARCHAR(255),
-        quantity VARCHAR(255),
-        price VARCHAR(255)
-      )`
-    );
-
-    // // Create the user_carts table if it doesn't exist
-    // await connection.execute(`
-    //   CREATE TABLE IF NOT EXISTS user_carts (
-    //     user_id INT NOT NULL,
-    //     cartName VARCHAR(255) NOT NULL,
-    //     PRIMARY KEY (user_id,cartName),
-    //     FOREIGN KEY (user_id) REFERENCES users(id),
-    //     FOREIGN KEY (cartName) REFERENCES ${cartName}
-    //   );
-    // `);
-
-    // Insert user-cart mapping into user_carts table
-    // await connection.execute(
-    //   "INSERT INTO user_carts (user_id, cartName) VALUES (?, ?)",
-    //   [userId, cartName]
-    // );
-
     return result; // Return the result of the user insertion
   } catch (error) {
     throw error;
   }
 };
 
-// getCartName = async (user_id) => {
-//   const [result] = await connection.execute(
-//     "SELECT cartName FROM user_carts WHERE user_id = ?",
-//     [user_id]
-//   );
-//   return result;
-// };
+exports.getUnverifiedUsers = async () => {
+  const [users] = await connection.execute(
+    "SELECT * FROM users WHERE is_verified = false"
+  );
+  return users;
+};
 
 exports.addToCart = async (
   user_id,
@@ -95,6 +61,25 @@ exports.saveProduct = async (name, quantity, price, category_id, user_id) => {
   const [result] = await connection.execute(
     "INSERT INTO products (name, quantity, price, category_id, user_id) VALUES (?,?,?,?,?)",
     [name, quantity, price, category_id, user_id]
+  );
+  return result;
+};
+
+exports.addToCart = async (
+  productName,
+  productId,
+  quantity,
+  price,
+  user_id
+) => {
+  const [result] = await connection.execute(
+    `INSERT INTO carts (productName, productId, quantity, price,user_id) VALUES (?, ?, ?, ?,?)`,
+    [productName, productId, quantity, price, user_id],
+    (productId = productId !== undefined ? productId : null),
+    (quantity = quantity !== undefined ? quantity : null),
+    (price = price !== undefined ? price : null),
+    (user_id = user_id !== undefined ? user_id : null),
+    console.log(productName, productId, quantity, price)
   );
   return result;
 };

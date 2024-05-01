@@ -27,12 +27,12 @@ userRoutes.get(
 userRoutes.delete(
   "/myProduct/delete",
   authenticationMiddleware.verifyToken,
-  UserController.deleteMyProducts
+  UserController.deleteMyProduct
 );
 userRoutes.put(
   "/myProduct/update",
   authenticationMiddleware.verifyToken,
-  UserController.updateMyProducts
+  UserController.updateMyProduct
 );
 
 userRoutes.put(

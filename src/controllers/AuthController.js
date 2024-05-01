@@ -10,6 +10,9 @@ const {
   sendEmail,
   sendEmailWithTemplate,
 } = require("../services/EmailService");
+const cron = require("node-cron");
+const NodeCache = require("node-cache");
+const myCache = new NodeCache();
 //method for creating a user
 exports.registerUser = async (req, res) => {
   try {
@@ -178,4 +181,41 @@ exports.verifyEmail = async (req, res) => {
   }
 };
 
-//mes
+exports.getUserFromNodeCache = async (req, res) => {
+  const { email } = req.body;
+  // first check if data is in cache
+  let userData = myCache.get(email);
+  if (!userData) {
+    //fetch from database
+    const userData = await getUserByEmail(email);
+    if (!userData) {
+      return res.status(400).json({
+        status: false,
+        data: {},
+        message: "user not found",
+      });
+    }
+    //store user data in cache
+    myCache.set(email, userData, 600);
+  }
+  return res.status(200).json({
+    status: true,
+    data: userData,
+    message: "request successful",
+  });
+};
+
+const cronSchedule = "* * * * *";
+function notifyUnverifiedUsers() {
+  const unverifedUsers = getUnverifiedUsers();
+  console.log(unverifedUsers);
+  unverifedUsers.forEach((user) => {
+    // sendReminderEmail to verify their accoounts
+  });
+  console.log(
+    `Email has been sent to ${unverifedUsers.length} unverified users`
+  );
+}
+const cronjob = cron.schedule(cronSchedule, notifyUnverifiedUsers);
+cronjob.start();
+//message

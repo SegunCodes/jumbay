@@ -37,13 +37,12 @@ exports.addProducts = async (req, res) => {
       data: {},
       message: "Successful",
     });
-    //send email to user
   } catch (error) {
     console.error(error);
   }
 };
 
-// for sellers to vuiew their products
+// for sellers to view their products
 exports.viewMyProducts = async (req, res) => {
   try {
     //store user details to database.
@@ -61,7 +60,6 @@ exports.viewMyProducts = async (req, res) => {
       data: products,
       message: "Successful",
     });
-    //send email to user
   } catch (error) {
     console.error(error);
   }
@@ -71,7 +69,7 @@ exports.viewMyProducts = async (req, res) => {
 exports.viewMyProduct = async (req, res) => {
   try {
     const { product_id } = req.params;
-    //store user details to database.
+
     const product = await getSellerProduct(product_id, req.user.id);
     if (!product) {
       return res.status(400).json({
@@ -86,67 +84,6 @@ exports.viewMyProduct = async (req, res) => {
       data: product,
       message: "Successful",
     });
-    //send email to user
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-//for seller to delete product
-
-exports.deleteMyProducts = async (req, res) => {
-  try {
-    //store user details to database.
-    const { product_id, user_id } = req.params;
-
-    const products = await deleteSellerProduct(product_id, user_id);
-    if (!products) {
-      return res.status(400).json({
-        status: false,
-        data: {},
-        message: "Something went wrong",
-      });
-    }
-
-    return res.status(200).json({
-      status: true,
-      data: products,
-      message: "Successful",
-    });
-    //send email to user
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-//update seller products
-exports.updateMyProducts = async (req, res) => {
-  try {
-    //store user details to database.
-    const { quantity, price, user_id, product_id } = req.body;
-
-    //store user details to database.
-    const product = await updateSellerProduct(
-      quantity,
-      price,
-      user_id,
-      product_id
-    );
-
-    if (!product) {
-      return res.status(400).json({
-        status: false,
-        data: {},
-        message: "Something went wrong",
-      });
-    }
-
-    return res.status(200).json({
-      status: true,
-      data: products,
-      message: "Successful",
-    });
-    //send email to user
   } catch (error) {
     console.error(error);
   }
@@ -155,7 +92,6 @@ exports.updateMyProducts = async (req, res) => {
 // for buyers or even sellers to view all products available for sale
 exports.viewAllProducts = async (req, res) => {
   try {
-    //store user details to database.
     const products = await getAllProducts();
     if (!products) {
       return res.status(400).json({
@@ -170,7 +106,6 @@ exports.viewAllProducts = async (req, res) => {
       data: products,
       message: "Successful",
     });
-    //send email to user
   } catch (error) {
     console.error(error);
   }
@@ -180,7 +115,7 @@ exports.viewAllProducts = async (req, res) => {
 exports.viewAllCategoryProducts = async (req, res) => {
   try {
     const { category_id } = req.params;
-    //store user details to database.
+
     const products = await getCategoryProducts(category_id);
     if (!products) {
       return res.status(400).json({
@@ -195,7 +130,6 @@ exports.viewAllCategoryProducts = async (req, res) => {
       data: products,
       message: "Successful",
     });
-    //send email to user
   } catch (error) {
     console.error(error);
   }
@@ -205,7 +139,7 @@ exports.viewAllCategoryProducts = async (req, res) => {
 exports.viewProduct = async (req, res) => {
   try {
     const { product_id } = req.params;
-    //store user details to database.
+
     const product = await getProduct(product_id);
     if (!product) {
       return res.status(400).json({
@@ -220,16 +154,14 @@ exports.viewProduct = async (req, res) => {
       data: product,
       message: "Successful",
     });
-    //send email to user
   } catch (error) {
     console.error(error);
   }
 };
 
-// for sellers to vuiew their products
+// for sellers to view their products
 exports.viewMyProducts = async (req, res) => {
   try {
-    //store user details to database.
     const products = await getSellerProducts(req.user.id);
     if (!products) {
       return res.status(400).json({
@@ -244,7 +176,6 @@ exports.viewMyProducts = async (req, res) => {
       data: products,
       message: "Successful",
     });
-    //send email to user
   } catch (error) {
     console.error(error);
   }
@@ -254,7 +185,7 @@ exports.viewMyProducts = async (req, res) => {
 exports.viewMyProduct = async (req, res) => {
   try {
     const { product_id } = req.params;
-    //store user details to database.
+
     const product = await getSellerProduct(product_id, req.user.id);
     if (!product) {
       return res.status(400).json({
@@ -269,7 +200,6 @@ exports.viewMyProduct = async (req, res) => {
       data: product,
       message: "Successful",
     });
-    //send email to user
   } catch (error) {
     console.error(error);
   }
@@ -277,9 +207,8 @@ exports.viewMyProduct = async (req, res) => {
 
 //for seller to delete product
 
-exports.deleteMyProducts = async (req, res) => {
+exports.deleteMyProduct = async (req, res) => {
   try {
-    //store user details to database.
     const { product_id, user_id } = req.body;
 
     const products = await deleteSellerProduct(product_id, user_id);
@@ -296,19 +225,16 @@ exports.deleteMyProducts = async (req, res) => {
       data: products,
       message: "Successful",
     });
-    //send email to user
   } catch (error) {
     console.error(error);
   }
 };
 
 //update seller products
-exports.updateMyProducts = async (req, res) => {
+exports.updateMyProduct = async (req, res) => {
   try {
-    //store user details to database.
     const { quantity, price, product_id, user_id } = req.body;
 
-    //store user details to database.
     const product = await updateSellerProduct(
       quantity,
       price,
@@ -329,95 +255,21 @@ exports.updateMyProducts = async (req, res) => {
       data: product,
       message: "Successful",
     });
-    //send email to user
   } catch (error) {
     console.error(error);
   }
 };
 
-// for buyers or even sellers to view all products available for sale
-exports.viewAllProducts = async (req, res) => {
-  try {
-    //store user details to database.
-    const products = await getAllProducts();
-    if (!products) {
-      return res.status(400).json({
-        status: false,
-        data: {},
-        message: "Something went wrong",
-      });
-    }
-
-    return res.status(200).json({
-      status: true,
-      data: products,
-      message: "Successful",
-    });
-    //send email to user
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-// for buyers or even sellers to view all products category available for sale
-exports.viewAllCategoryProducts = async (req, res) => {
-  try {
-    const { category_id } = req.params;
-    //store user details to database.
-    const products = await getCategoryProducts(category_id);
-    if (!products) {
-      return res.status(400).json({
-        status: false,
-        data: {},
-        message: "Something went wrong",
-      });
-    }
-
-    return res.status(200).json({
-      status: true,
-      data: products,
-      message: "Successful",
-    });
-    //send email to user
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-// for buyers or even sellers to view a single product available for sale
-exports.viewProduct = async (req, res) => {
-  try {
-    const { product_id } = req.params;
-    //store user details to database.
-    const product = await getProduct(product_id);
-    if (!product) {
-      return res.status(400).json({
-        status: false,
-        data: {},
-        message: "Something went wrong",
-      });
-    }
-
-    return res.status(200).json({
-      status: true,
-      data: product,
-      message: "Successful",
-    });
-    //send email to user
-  } catch (error) {
-    console.error(error);
-  }
-};
 exports.addToCart = async (req, res) => {
   try {
-    const { user_id, productName, productId, quantity, price } = req.body;
+    const { productName, productId, quantity, price } = req.body;
 
     const product = await addToCart(
-      user_id,
       productName,
       productId,
       quantity,
-      price
+      price,
+      req.user.id
     );
 
     if (!product) {
@@ -437,4 +289,3 @@ exports.addToCart = async (req, res) => {
     console.error(error);
   }
 };
-//bojak 18.22
