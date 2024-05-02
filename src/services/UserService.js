@@ -8,6 +8,13 @@ exports.getUserByEmail = async (email) => {
   return user;
 };
 
+exports.getUnverifiedUsers = async () => {
+  const [users] = await connection.execute(
+    "SELECT * FROM users WHERE is_verified = false"
+  );
+  return users;
+};
+
 exports.saveUser = async (email, usertype, password, verification_token) => {
   try {
     // Insert user information into the users table
