@@ -29,33 +29,6 @@ exports.saveUser = async (email, usertype, password, verification_token) => {
   }
 };
 
-exports.getUnverifiedUsers = async () => {
-  const [users] = await connection.execute(
-    "SELECT * FROM users WHERE is_verified = false"
-  );
-  return users;
-};
-
-exports.addToCart = async (
-  user_id,
-  productName,
-  productId,
-  quantity,
-  price
-) => {
-  const cartTable = `cart_${user_id}`;
-  console.log(cartTable);
-  const [result] = await connection.execute(
-    `INSERT INTO ${cartTable} (productName, productId, quantity, price) VALUES (?, ?, ?, ?)`,
-    [productName, productId, quantity, price],
-    (productId = productId !== undefined ? productId : null),
-    (quantity = quantity !== undefined ? quantity : null),
-    (price = price !== undefined ? price : null),
-    console.log(productName, productId, quantity, price)
-  );
-  return result;
-};
-
 exports.verifyUserAccount = async (user_id) => {
   const [result] = await connection.execute(
     "UPDATE users SET is_verified = true, verification_token = NULL WHERE id = ?",
@@ -85,8 +58,7 @@ exports.addToCart = async (
     (productId = productId !== undefined ? productId : null),
     (quantity = quantity !== undefined ? quantity : null),
     (price = price !== undefined ? price : null),
-    (user_id = user_id !== undefined ? user_id : null),
-    console.log(productName, productId, quantity, price)
+    (user_id = user_id !== undefined ? user_id : null)
   );
   return result;
 };
