@@ -3,13 +3,15 @@ const {
   getUserByEmail,
   saveUser,
   verifyUserAccount,
-  getUnverifiedUsers
 } = require("../services/UserService");
 const randomize = require("randomatic");
 const jwt = require("jsonwebtoken");
-const { sendEmail,sendEmailWithTemplate  } = require("../services/EmailService");
+const {
+  sendEmail,
+  sendEmailWithTemplate,
+} = require("../services/EmailService");
 const cron = require("node-cron");
-const NodeCache = require( "node-cache" );
+const NodeCache = require("node-cache");
 const myCache = new NodeCache();
 //method for creating a user
 exports.registerUser = async (req, res) => {
@@ -44,16 +46,15 @@ exports.registerUser = async (req, res) => {
       });
     }
 
-    const verification_link = `http://localhost:4000/auth/verify/${verification_token}/${email}`
+    const verification_link = `http://localhost:4000/auth/verify/${verification_token}/${email}`;
     const data = {
       verification_link: verification_link,
       subject: "Email Verification",
       text: `Click on this link to verify your email : ${verification_link}`,
-      html: `<p>Click on this link to verify your email: <a href="${verification_link}"> Click Here </a></p> `
-    }
+      html: `<p>Click on this link to verify your email: <a href="${verification_link}"> Click Here </a></p> `,
+    };
 
-    await sendEmailWithTemplate(email, data)
-
+    await sendEmailWithTemplate(email, data);
 
     return res.status(200).json({
       status: true,
@@ -95,7 +96,7 @@ exports.loginUser = async (req, res) => {
         data: {},
         message: "Invalid email or password",
       });
-    } 
+    }
 
     // if password match, check if the user is verified
     if (!user.is_verified) {
@@ -104,31 +105,31 @@ exports.loginUser = async (req, res) => {
         data: {},
         message: "user is not verified",
       });
-    } 
-    
+    }
+
     const payload = {
       email,
-      id: user.id
-    }
+      id: user.id,
+    };
     //generate a token
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_LIFETIME
-    })
+      expiresIn: process.env.JWT_LIFETIME,
+    });
 
     const userData = {
       id: user.id,
       email: user.email,
       verification_token: user.verification_token,
-      is_verified: user.is_verified
-    }
+      is_verified: user.is_verified,
+    };
 
     return res.status(200).json({
       status: true,
       data: {
-        userData
+        userData,
       },
       message: "Successful",
-      token
+      token,
     });
   } catch (error) {
     console.error(error);
@@ -137,7 +138,7 @@ exports.loginUser = async (req, res) => {
 
 exports.verifyEmail = async (req, res) => {
   try {
-    const { verification_token, email,  } = req.params;
+    const { verification_token, email } = req.params;
     // check if user exists in our database
     const emailExist = await getUserByEmail(email);
     if (emailExist.length === 0) {
@@ -149,7 +150,7 @@ exports.verifyEmail = async (req, res) => {
       });
     }
 
-    const user = emailExist[0]; 
+    const user = emailExist[0];
     const verificationTokenFromDB = user.verification_token;
 
     if (verificationTokenFromDB != verification_token) {
@@ -158,9 +159,9 @@ exports.verifyEmail = async (req, res) => {
         data: {},
         message: "Invalid email or token",
       });
-    } 
+    }
 
-    const update_user = await verifyUserAccount(user.id)
+    const update_user = await verifyUserAccount(user.id);
 
     if (!update_user) {
       return res.status(400).json({
@@ -173,19 +174,19 @@ exports.verifyEmail = async (req, res) => {
     return res.status(200).json({
       status: true,
       data: {},
-      message: "Successful"
+      message: "Successful",
     });
   } catch (error) {
     console.error(error);
   }
 };
 
-exports.getUserFromNodeCache = async(req, res) => {
+exports.getUserFromNodeCache = async (req, res) => {
   const { email } = req.body;
   // first check if data is in cache
-  let userData = myCache.get(email)
+  let userData = myCache.get(email);
   if (!userData) {
-    //fetch from database 
+    //fetch from database
     const userData = await getUserByEmail(email);
     if (!userData) {
       return res.status(400).json({
@@ -195,24 +196,26 @@ exports.getUserFromNodeCache = async(req, res) => {
       });
     }
     //store user data in cache
-    myCache.set(email, userData, 600)
+    myCache.set(email, userData, 600);
   }
   return res.status(200).json({
     status: true,
     data: userData,
     message: "request successful",
   });
-}
+};
 
 const cronSchedule = "* * * * *";
-function notifyUnverifiedUsers(){
-  const unverifedUsers = getUnverifiedUsers()
-  console.log(unverifedUsers)
+function notifyUnverifiedUsers() {
+  const unverifedUsers = getUnverifiedUsers();
+  console.log(unverifedUsers);
   unverifedUsers.forEach((user) => {
     // sendReminderEmail to verify their accoounts
   });
-  console.log(`Email has been sent to ${unverifedUsers.length} unverified users`)
+  console.log(
+    `Email has been sent to ${unverifedUsers.length} unverified users`
+  );
 }
-const cronjob = cron.schedule(cronSchedule, notifyUnverifiedUsers)
-cronjob.start()
+const cronjob = cron.schedule(cronSchedule, notifyUnverifiedUsers);
+cronjob.start();
 //message
